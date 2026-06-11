@@ -1,16 +1,25 @@
 from flask import Flask, request, jsonify
-from analysis_logic import analyseer_loodlijn
+from analysis_logic import bereken_hoek, geef_feedback
+import os
 
 app = Flask(__name__)
 
 @app.route('/analyseer', methods=['POST'])
 def analyseer():
-    # Dit stukje code haalt de data uit je app
-    data = request.json
-    hoek = data.get('hoek', 0) # De app stuurt de gemeten hoek mee
+    # Controleer of er een bestand is meegestuurd
+    if 'video' not in request.files:
+        return jsonify({"fout": "Geen video gevonden"}), 400
     
-    # We roepen onze slimme logica aan
-    resultaat = analyseer_loodlijn(hoek)
+    video = request.files['video']
+    video_pad = "temp_video.mp4"
+    video.save(video_pad)
+    
+    # Analyseer de video
+    hoek = bereken_hoek(video_pad)
+    resultaat = geef_feedback(hoek)
+    
+    # Verwijder tijdelijk bestand
+    os.remove(video_pad)
     
     return jsonify(resultaat)
 
