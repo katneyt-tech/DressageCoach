@@ -1,22 +1,24 @@
-def analyseer_loodlijn(hoek):
-    # Dit is de logica: we meten de hoek van de neuslijn
-    # Ideaal is rond de 0 graden (verticaal)
+import cv2
+import math
+
+def bereken_hoek(video_pad):
+    # Hier simuleren we de AI-analyse
+    # In de toekomst komt hier de 'Pose Estimation' (bijv. MediaPipe)
+    # Voor nu geven we een berekende waarde terug die we uit de video "lezen"
     
+    # We openen de video
+    cap = cv2.VideoCapture(video_pad)
+    # (Hier zou de AI-logica komen die de lijnen op het paard trekt)
+    # Voor nu simuleren we de meting:
+    hoek = 10 # Stel de AI meet 10 graden
+    
+    cap.release()
+    return hoek
+
+def geef_feedback(hoek):
     if -5 <= hoek <= 5:
-        return {
-            "status": "Correct",
-            "feedback": "Je paard loopt mooi aan de loodlijn. Je aanleuning lijkt stabiel.",
-            "oefening": "Probeer dit gevoel vast te houden en varieer nu in tempo zonder dat de houding verandert."
-        }
+        return {"status": "Correct", "feedback": "Je paard loopt mooi constant aan de loodlijn.", "oefening": "Varieer nu in tempo."}
     elif hoek < -5:
-        return {
-            "status": "Achter de loodlijn",
-            "feedback": "Je paard komt achter de loodlijn. Hij zoekt geen contact met je hand.",
-            "oefening": "Rijd ruimere wendingen, geef meer ruimte met je hand en rijd actiever van achteruit naar voren."
-        }
+        return {"status": "Achter de loodlijn", "feedback": "Paard komt achter de loodlijn.", "oefening": "Geef meer ruimte met de hand."}
     else:
-        return {
-            "status": "Voor de loodlijn",
-            "feedback": "Je paard loopt voor de loodlijn (tegen de hand in).",
-            "oefening": "Zorg voor meer verbinding door je been en rijd meer overgangen om het paard op je hulpen te krijgen."
-        }
+        return {"status": "Voor de loodlijn", "feedback": "Paard loopt voor de loodlijn.", "oefening": "Zorg voor meer verbinding."}
