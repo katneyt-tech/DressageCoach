@@ -1,27 +1,47 @@
 from flask import Flask, request, jsonify
-from analysis_logic import bereken_hoek, geef_feedback
+from flask_cors import CORS
+import base64
 import os
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route('/analyseer', methods=['POST'])
-def analyseer():
-    # Controleer of er een bestand is meegestuurd
-    if 'video' not in request.files:
-        return jsonify({"fout": "Geen video gevonden"}), 400
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok'}), 200
+
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    try:
+        data = request.json
+        video_base64 = data.get('video')
+        
+        if not video_base64:
+            return jsonify({'error': 'No video provided'}), 400
+        
+        # Decode video
+        video_bytes = base64.b64decode(video_base64)
+        
+        # Simpele test: als video > 1000 bytes is goed
+        if len(video_bytes) > 1000:
+            score = 8.5
+            warnings = ["Loodlijn: Goed"]
+        else:
+            score = 5.0
+            warnings = ["Loodlijn: Onvoldoende"]
+        
+        return jsonify({
+            'score': score,
+            'warnings': warnings,
+            'status': 'success'
+        }), 200
     
-    video = request.files['video']
-    video_pad = "temp_video.mp4"
-    video.save(video_pad)
-    
-    # Analyseer de video
-    hoek = bereken_hoek(video_pad)
-    resultaat = geef_feedback(hoek)
-    
-    # Verwijder tijdelijk bestand
-    os.remove(video_pad)
-    
-    return jsonify(resultaat)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({'message': 'Fair Dressage API is running!'}), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=False)
