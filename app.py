@@ -7,7 +7,15 @@ import tempfile
 import os
 
 app = Flask(__name__)
-CORS(app)
+
+# CORS FIX - heel permissief
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 @app.route('/health', methods=['GET'])
 def health():
